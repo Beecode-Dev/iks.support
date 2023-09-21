@@ -1,4 +1,4 @@
-name: Build the flutter version of the RustDesk 
+name: Build the flutter version of the RustDesk
 
 on:
   workflow_call:
@@ -25,11 +25,11 @@ env:
   VERSION: "1.2.3"
   NDK_VERSION: "r25c"
   #signing keys env variable checks
-  ANDROID_SIGNING_KEY: '${{ secrets.ANDROID_SIGNING_KEY }}'
-  MACOS_P12_BASE64: '${{ secrets.MACOS_P12_BASE64 }}'
+  ANDROID_SIGNING_KEY: "${{ secrets.ANDROID_SIGNING_KEY }}"
+  MACOS_P12_BASE64: "${{ secrets.MACOS_P12_BASE64 }}"
   # To make a custom build with your own servers set the below secret values
-  RS_PUB_KEY: '${{ secrets.RS_PUB_KEY }}'
-  RENDEZVOUS_SERVER: '${{ secrets.RENDEZVOUS_SERVER }}'
+  RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"
+  RENDEZVOUS_SERVER: "${{ secrets.RENDEZVOUS_SERVER }}"
   UPLOAD_ARTIFACT: "${{ inputs.upload-artifact }}"
 
 jobs:
@@ -90,8 +90,8 @@ jobs:
       - name: Install vcpkg dependencies
         run: |
           cd C:\
-          git clone https://github.com/Kingtous/rustdesk_thirdpary_lib --depth=1 
-          
+          git clone https://github.com/Kingtous/rustdesk_thirdpary_lib --depth=1
+
       - name: Build rustdesk
         env:
           VCPKG_ROOT: C:\rustdesk_thirdpary_lib\vcpkg
@@ -117,11 +117,11 @@ jobs:
         uses: GermanBluefox/code-sign-action@v7
         if: env.UPLOAD_ARTIFACT == 'true'
         with:
-          certificate: '${{ secrets.WINDOWS_PFX_BASE64 }}'
-          password: '${{ secrets.WINDOWS_PFX_PASSWORD }}'
-          certificatesha1: '${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}'
+          certificate: "${{ secrets.WINDOWS_PFX_BASE64 }}"
+          password: "${{ secrets.WINDOWS_PFX_PASSWORD }}"
+          certificatesha1: "${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}"
           # certificatename: '${{ secrets.CERTNAME }}'
-          folder: './flutter/build/windows/runner/Release/'
+          folder: "./flutter/build/windows/runner/Release/"
           recursive: true
 
       - name: Build self-extracted executable
@@ -129,20 +129,20 @@ jobs:
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
           pushd ./libs/portable
-          python3 ./generate.py -f ../../flutter/build/windows/runner/Release/ -o . -e ../../flutter/build/windows/runner/Release/rustdesk.exe
+          python3 ./generate.py -f ../../flutter/build/windows/runner/Release/ -o . -e ../../flutter/build/windows/runner/Release/ikssupport.exe
           popd
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.exe
+          mv ./target/release/ikssupport-portable-packer.exe ./SignOutput/ikssupport-${{ env.VERSION }}-${{ matrix.job.arch }}.exe
 
       - name: Sign rustdesk self-extracted file
         uses: GermanBluefox/code-sign-action@v7
         if: env.UPLOAD_ARTIFACT == 'true'
         with:
-          certificate: '${{ secrets.WINDOWS_PFX_BASE64 }}'
-          password: '${{ secrets.WINDOWS_PFX_PASSWORD }}'
-          certificatesha1: '${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}'
+          certificate: "${{ secrets.WINDOWS_PFX_BASE64 }}"
+          password: "${{ secrets.WINDOWS_PFX_PASSWORD }}"
+          certificatesha1: "${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}"
           # certificatename: '${{ secrets.WINDOWS_PFX_NAME }}'
-          folder: './SignOutput'
+          folder: "./SignOutput"
           recursive: false
 
       - name: Publish Release
@@ -159,7 +159,7 @@ jobs:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     runs-on: ${{ matrix.job.os }}
     # Temporarily disable this action due to additional test is needed.
-    # if: false 
+    # if: false
     strategy:
       fail-fast: false
       matrix:
@@ -198,7 +198,7 @@ jobs:
       - name: Install vcpkg dependencies
         run: |
           cd C:\
-          git clone https://github.com/Kingtous/rustdesk_thirdpary_lib --depth=1 
+          git clone https://github.com/Kingtous/rustdesk_thirdpary_lib --depth=1
 
       - name: Build rustdesk
         id: build
@@ -211,7 +211,7 @@ jobs:
           sed -i 's/branch = "dyn"/branch = "dyn_x86"/g' ./Cargo.toml
           cargo build --features inline --release --bins
           mkdir -p ./Release
-          mv ./target/release/rustdesk.exe ./Release/rustdesk.exe
+          mv ./target/release/ikssupport.exe ./Release/ikssupport.exe
           curl -LJ -o ./Release/sciter.dll https://github.com/c-smile/sciter-sdk/raw/master/bin.win/x32/sciter.dll
           echo "output_folder=./Release" >> $GITHUB_OUTPUT
 
@@ -235,11 +235,11 @@ jobs:
         uses: GermanBluefox/code-sign-action@v7
         if: env.UPLOAD_ARTIFACT == 'true'
         with:
-          certificate: '${{ secrets.WINDOWS_PFX_BASE64 }}'
-          password: '${{ secrets.WINDOWS_PFX_PASSWORD }}'
-          certificatesha1: '${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}'
+          certificate: "${{ secrets.WINDOWS_PFX_BASE64 }}"
+          password: "${{ secrets.WINDOWS_PFX_PASSWORD }}"
+          certificatesha1: "${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}"
           # certificatename: '${{ secrets.CERTNAME }}'
-          folder: './Release/'
+          folder: "./Release/"
           recursive: true
 
       - name: Build self-extracted executable
@@ -247,19 +247,19 @@ jobs:
         run: |
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../Release/ -o . -e ../../Release/rustdesk.exe
+          python3 ./generate.py -f ../../Release/ -o . -e ../../Release/ikssupport.exe
           popd
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}-sciter.exe
-      
+          mv ./target/release/ikssupport-portable-packer.exe ./SignOutput/ikssupport-${{ env.VERSION }}-${{ matrix.job.arch }}-sciter.exe
+
       - name: Sign rustdesk self-extracted file
         uses: GermanBluefox/code-sign-action@v7
         with:
-          certificate: '${{ secrets.WINDOWS_PFX_BASE64 }}'
-          password: '${{ secrets.WINDOWS_PFX_PASSWORD }}'
-          certificatesha1: '${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}'
+          certificate: "${{ secrets.WINDOWS_PFX_BASE64 }}"
+          password: "${{ secrets.WINDOWS_PFX_PASSWORD }}"
+          certificatesha1: "${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}"
           # certificatename: '${{ secrets.WINDOWS_PFX_NAME }}'
-          folder: './SignOutput'
+          folder: "./SignOutput"
           recursive: false
 
       - name: Publish Release
@@ -269,7 +269,7 @@ jobs:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
           files: |
-            ./SignOutput/rustdesk-*.exe
+            ./SignOutput/ikssupport-*.exe
 
   build-for-macOS:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-args }}]
@@ -282,7 +282,7 @@ jobs:
               target: x86_64-apple-darwin,
               os: macos-latest,
               extra-build-args: "",
-              arch: x86_64
+              arch: x86_64,
             }
     steps:
       - name: Checkout source code
@@ -291,11 +291,11 @@ jobs:
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@v1
-        with: 
+        with:
           p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
           p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
           keychain: rustdesk
-      
+
       - name: Check sign and import sign key
         if: env.MACOS_P12_BASE64 != null
         run: |
@@ -310,11 +310,11 @@ jobs:
           fileName: rustdesk.json
           fileDir: ${{ github.workspace }}
           encodedString: ${{ secrets.MACOS_NOTARIZE_JSON }}
-          
+
       - name: Install rcodesign tool
         if: env.MACOS_P12_BASE64 != null
         shell: bash
-        run: | 
+        run: |
           pushd /tmp
           wget https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.22.0/apple-codesign-0.22.0-macos-universal.tar.gz
           tar -zxvf apple-codesign-0.22.0-macos-universal.tar.gz
@@ -482,7 +482,7 @@ jobs:
           # flutter build ipa --release --obfuscate --split-debug-info=./split-debug-info --no-codesign
           # for easy debugging
           flutter build ipa --release --no-codesign
-      
+
       # - name: Upload Artifacts
       #   # if: env.ANDROID_SIGNING_KEY != null && env.UPLOAD_ARTIFACT == 'true'
       #   uses: actions/upload-artifact@master
@@ -498,7 +498,6 @@ jobs:
       #     tag_name: ${{ env.TAG_NAME }}
       #     files: |
       #       flutter/build/ios/ipa/*.ipa
-    
 
   build-rustdesk-android:
     needs: [generate-bridge-linux]
@@ -513,14 +512,14 @@ jobs:
               target: aarch64-linux-android,
               os: ubuntu-20.04,
               extra-build-features: "",
-              openssl-arch: android-arm64
+              openssl-arch: android-arm64,
             }
           - {
               arch: armv7,
               target: armv7-linux-androideabi,
               os: ubuntu-20.04,
               extra-build-features: "",
-              openssl-arch: android-arm
+              openssl-arch: android-arm,
             }
     steps:
       - name: Install dependencies
@@ -616,7 +615,7 @@ jobs:
           popd
           mkdir -p signed-apk; pushd signed-apk
           mv ../rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.apk .
-      
+
       - uses: r0adkll/sign-android-release@v1
         name: Sign app APK
         if: env.ANDROID_SIGNING_KEY != null
@@ -672,21 +671,21 @@ jobs:
               target: x86_64-unknown-linux-gnu,
               os: ubuntu-20.04,
               extra-build-features: "",
-              enable-headless: true
+              enable-headless: true,
             }
           - {
               arch: x86_64,
               target: x86_64-unknown-linux-gnu,
               os: ubuntu-20.04,
               extra-build-features: "flatpak",
-              enable-headless: false
+              enable-headless: false,
             }
           - {
               arch: x86_64,
               target: x86_64-unknown-linux-gnu,
               os: ubuntu-20.04,
               extra-build-features: "appimage",
-              enable-headless: false
+              enable-headless: false,
             }
           # - { target: x86_64-unknown-linux-musl   , os: ubuntu-20.04, use-cross: true }
     steps:
@@ -718,7 +717,7 @@ jobs:
           target: ${{ matrix.job.target }}
           override: true
           profile: minimal # minimal component installation (ie, no documentation)
-      
+
       - name: Save Rust toolchain version
         run: |
           RUST_TOOLCHAIN_VERSION=$(cargo --version | awk '{print $2}')
@@ -820,7 +819,7 @@ jobs:
               os: ubuntu-20.04, # just for naming package, not running host
               use-cross: true,
               extra-build-features: "",
-              enable-headless: true
+              enable-headless: true,
             }
           - {
               arch: aarch64,
@@ -828,7 +827,7 @@ jobs:
               os: ubuntu-20.04, # just for naming package, not running host
               use-cross: true,
               extra-build-features: "appimage",
-              enable-headless: false
+              enable-headless: false,
             }
           # - { arch: aarch64, target: aarch64-unknown-linux-gnu   , os: ubuntu-20.04, use-cross: true, extra-build-features: "flatpak" }
           # - {
@@ -869,7 +868,7 @@ jobs:
           target: ${{ matrix.job.target }}
           override: true
           profile: minimal # minimal component installation (ie, no documentation)
-      
+
       - name: Save Rust toolchain version
         run: |
           RUST_TOOLCHAIN_VERSION=$(cargo --version | awk '{print $2}')
@@ -965,12 +964,11 @@ jobs:
               os: ubuntu-latest,
               use-cross: true,
               extra-build-features: "",
-              enable-headless: true
+              enable-headless: true,
             }
           # - { arch: armv7, target: armv7-unknown-linux-gnueabihf , os: ubuntu-20.04, use-cross: true, extra-build-features: "appimage" }
           # - { target: arm-unknown-linux-musleabihf, os: ubuntu-20.04, use-cross: true }
     steps:
-
       #- name: Maximize build space
       #  run: |
       #    sudo rm -rf /opt/ghc
@@ -999,7 +997,7 @@ jobs:
           target: ${{ matrix.job.target }}
           override: true
           profile: minimal # minimal component installation (ie, no documentation)
-      
+
       - name: Save Rust toolchain version
         run: |
           RUST_TOOLCHAIN_VERSION=$(cargo --version | awk '{print $2}')
@@ -1046,7 +1044,7 @@ jobs:
               registry = 'https://github.com/rust-lang/crates.io-index'
             """ > ~/.cargo/config
             cat ~/.cargo/config
-            
+
             # build
             pushd /workspace
             python3 ./res/inline-sciter.py
@@ -1254,7 +1252,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           files: |
             rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.deb
-      
+
       - name: Build appimage package
         if: ${{ matrix.job.extra-build-features == 'appimage' }}
         shell: bash
@@ -1365,7 +1363,7 @@ jobs:
           - {
               arch: x86_64,
               target: x86_64-unknown-linux-gnu,
-              os: ubuntu-18.04, 
+              os: ubuntu-18.04,
               extra-build-features: "",
             }
           - {
